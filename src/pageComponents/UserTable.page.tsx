@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Column, useTable } from 'react-table';
+import { Column, useSortBy, useTable } from 'react-table';
 import { useDeleteUserMutation, useGetUsersQuery } from '../store/users/users.api';
 import {
   Button,
@@ -25,11 +25,20 @@ import {
 } from '@chakra-ui/react';
 import { User } from '../store/users/user.types';
 import { useNavigate } from 'react-router-dom';
+import { TiArrowSortedUp, TiArrowSortedDown, TiArrowUnsorted } from 'react-icons/ti';
+import { ColumnInstance } from 'react-table';
+
+type ColumnWithSortingOptions<T extends object> = Column<T> & {
+  isSortable?: boolean;
+};
+type ColumnInstanceWithSorting<T extends object> = ColumnInstance<T> & {
+  isSortable?: boolean;
+};
 
 export function UserTable() {
   const { data, isLoading } = useGetUsersQuery();
   const navigate = useNavigate();
-  const columns: Column<User>[] = useMemo(
+  const columns: ColumnWithSortingOptions<User>[] = useMemo(
     () => [
       {
         Header: 'ID',
@@ -42,6 +51,9 @@ export function UserTable() {
       {
         Header: 'Username',
         accessor: 'username',
+
+        sortType: 'alphanumeric',
+        isSortable: true,
       },
       {
         Header: 'City',
@@ -72,10 +84,13 @@ export function UserTable() {
     [navigate],
   );
   const users = useMemo(() => data || [], [data]);
-  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable({
-    columns: columns,
-    data: users,
-  });
+  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable(
+    {
+      columns: columns,
+      data: users,
+    },
+    useSortBy,
+  );
 
   return (
     <Flex shadow="base" p={2} direction="column" w="full" alignItems="center">
@@ -92,9 +107,26 @@ export function UserTable() {
           <Thead>
             {headerGroups.map((headerGroup) => (
               <Tr {...headerGroup.getHeaderGroupProps()} key={headerGroup.id}>
-                {headerGroup.headers.map((column) => (
-                  <Th {...column.getHeaderProps()} key={column.id}>
-                    {column.render('Header')}
+                {headerGroup.headers.map((column: ColumnInstanceWithSorting<User>) => (
+                  <Th
+                    {...column.getHeaderProps(
+                      column.isSortable ? column.getSortByToggleProps() : {},
+                    )}
+                    key={column.id}
+                  >
+                    <Flex alignItems="center" direction="row">
+                      <Text>{column.render('Header')}</Text>
+                      {column.isSortable &&
+                        (column.isSorted ? (
+                          column.isSortedDesc ? (
+                            <TiArrowSortedDown />
+                          ) : (
+                            <TiArrowSortedUp />
+                          )
+                        ) : (
+                          <TiArrowUnsorted />
+                        ))}
+                    </Flex>
                   </Th>
                 ))}
               </Tr>
