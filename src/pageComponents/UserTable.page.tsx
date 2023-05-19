@@ -105,32 +105,35 @@ export function UserTable() {
       <TableContainer w="full" shadow="lg" borderRadius="xl">
         <Table {...getTableProps()} variant="striped" size="sm">
           <Thead>
-            {headerGroups.map((headerGroup) => (
-              <Tr {...headerGroup.getHeaderGroupProps()} key={headerGroup.id}>
-                {headerGroup.headers.map((column: ColumnInstanceWithSorting<User>) => (
-                  <Th
-                    {...column.getHeaderProps(
-                      column.isSortable ? column.getSortByToggleProps() : {},
-                    )}
-                    key={column.id}
-                  >
-                    <Flex alignItems="center" direction="row">
-                      <Text>{column.render('Header')}</Text>
-                      {column.isSortable &&
-                        (column.isSorted ? (
-                          column.isSortedDesc ? (
-                            <TiArrowSortedDown />
+            {headerGroups.map((headerGroup) => {
+              const { key, ...restHeaderGroupProps } = headerGroup.getHeaderGroupProps();
+              return (
+                <Tr {...restHeaderGroupProps} key={key}>
+                  {headerGroup.headers.map((column: ColumnInstanceWithSorting<User>) => (
+                    <Th
+                      {...column.getHeaderProps(
+                        column.isSortable ? column.getSortByToggleProps() : {},
+                      )}
+                      key={column.id}
+                    >
+                      <Flex alignItems="center" direction="row">
+                        <Text>{column.render('Header')}</Text>
+                        {column.isSortable &&
+                          (column.isSorted ? (
+                            column.isSortedDesc ? (
+                              <TiArrowSortedDown />
+                            ) : (
+                              <TiArrowSortedUp />
+                            )
                           ) : (
-                            <TiArrowSortedUp />
-                          )
-                        ) : (
-                          <TiArrowUnsorted />
-                        ))}
-                    </Flex>
-                  </Th>
-                ))}
-              </Tr>
-            ))}
+                            <TiArrowUnsorted />
+                          ))}
+                      </Flex>
+                    </Th>
+                  ))}
+                </Tr>
+              );
+            })}
           </Thead>
           <Tbody {...getTableBodyProps()}>
             {isLoading && (
