@@ -76,59 +76,57 @@ export function UserTable() {
   });
 
   return (
-    <>
-      <Flex shadow="base" p={2} direction="column" w="full" alignItems="center">
-        <Flex direction="row" w="full" justifyContent="space-between" mb={5}>
-          <Text fontSize="2xl" fontWeight="bold">
-            User List
-          </Text>
-          <Button onClick={() => navigate('/add')} variant="solid" colorScheme="blue">
-            Add User
-          </Button>
-        </Flex>
-        <TableContainer w="full" shadow="lg" borderRadius="xl">
-          <Table {...getTableProps()} variant="striped" size="sm">
-            <Thead>
-              {headerGroups.map((headerGroup) => (
-                <Tr {...headerGroup.getHeaderGroupProps()} key={headerGroup.id}>
-                  {headerGroup.headers.map((column) => (
-                    <Th {...column.getHeaderProps()} key={column.id}>
-                      {column.render('Header')}
-                    </Th>
-                  ))}
-                </Tr>
-              ))}
-            </Thead>
-            <Tbody {...getTableBodyProps()}>
-              {rows.length === 0 && (
-                <Tr>
-                  <Td colSpan={columns.length} p={2}>
-                    <Text fontWeight="semibold" fontSize="xl" textAlign="center">
-                      No data
-                    </Text>
-                  </Td>
-                </Tr>
-              )}
-              {rows.map((row) => {
-                prepareRow(row);
-                return (
-                  <Tr {...row.getRowProps()} key={row.id}>
-                    {row.cells.map((cell) => {
-                      const { key, ...restCellProps } = cell.getCellProps();
-                      return (
-                        <Td {...restCellProps} key={key}>
-                          {cell.render('Cell')}
-                        </Td>
-                      );
-                    })}
-                  </Tr>
-                );
-              })}
-            </Tbody>
-          </Table>
-        </TableContainer>
+    <Flex shadow="base" p={2} direction="column" w="full" alignItems="center">
+      <Flex direction="row" w="full" justifyContent="space-between" mb={5}>
+        <Text fontSize="2xl" fontWeight="bold">
+          User List
+        </Text>
+        <Button onClick={() => navigate('/add')} variant="solid" colorScheme="blue">
+          Add User
+        </Button>
       </Flex>
-    </>
+      <TableContainer w="full" shadow="lg" borderRadius="xl">
+        <Table {...getTableProps()} variant="striped" size="sm">
+          <Thead>
+            {headerGroups.map((headerGroup) => (
+              <Tr {...headerGroup.getHeaderGroupProps()} key={headerGroup.id}>
+                {headerGroup.headers.map((column) => (
+                  <Th {...column.getHeaderProps()} key={column.id}>
+                    {column.render('Header')}
+                  </Th>
+                ))}
+              </Tr>
+            ))}
+          </Thead>
+          <Tbody {...getTableBodyProps()}>
+            {rows.length === 0 && (
+              <Tr>
+                <Td colSpan={columns.length} p={2}>
+                  <Text fontWeight="semibold" fontSize="xl" textAlign="center">
+                    No data
+                  </Text>
+                </Td>
+              </Tr>
+            )}
+            {rows.map((row) => {
+              prepareRow(row);
+              return (
+                <Tr {...row.getRowProps()} key={row.id}>
+                  {row.cells.map((cell) => {
+                    const { key, ...restCellProps } = cell.getCellProps();
+                    return (
+                      <Td {...restCellProps} key={key}>
+                        {cell.render('Cell')}
+                      </Td>
+                    );
+                  })}
+                </Tr>
+              );
+            })}
+          </Tbody>
+        </Table>
+      </TableContainer>
+    </Flex>
   );
 }
 
