@@ -11,7 +11,6 @@ export const EditUser = () => {
   const { userId } = useParams();
   const { data, isLoading, error } = useGetUsersQuery();
   const user = data?.find((user) => user.id.toString() === userId);
-  console.log(user);
   if (isLoading) return <Spinner />;
   if (error || !user) return <Navigate to="/" />;
 

@@ -20,6 +20,7 @@ import {
   Thead,
   Tr,
   useDisclosure,
+  useToast,
 } from '@chakra-ui/react';
 import { User } from '../store/users/user.types';
 import { useNavigate } from 'react-router-dom';
@@ -131,10 +132,29 @@ export function UserTable() {
 }
 
 const DeleteUserButton = ({ id, name }: { id: number; name: string }) => {
+  const toast = useToast();
   const { isOpen, onToggle, onClose } = useDisclosure();
   const [deleteUser] = useDeleteUserMutation();
   const handleDelete = () => {
-    deleteUser(id);
+    deleteUser(id)
+      .then(() => {
+        toast({
+          title: 'User deleted.',
+          description: `${name} has been deleted.`,
+          status: 'success',
+          duration: 5000,
+          isClosable: true,
+        });
+      })
+      .catch((err) => {
+        toast({
+          title: 'Error while deleting user.',
+          description: err.message,
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        });
+      });
     onClose();
   };
   return (

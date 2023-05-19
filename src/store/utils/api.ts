@@ -4,5 +4,6 @@ export const api = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: 'https://my-json-server.typicode.com/karolkproexe/jsonplaceholderdb',
   }),
+
   endpoints: () => ({}),
 });
