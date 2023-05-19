@@ -51,13 +51,13 @@ const usersApi = api.enhanceEndpoints({ addTagTypes: ['Users'] }).injectEndpoint
         };
       },
       async onQueryStarted(data, { dispatch, queryFulfilled }) {
-        const patchResult = dispatch(
+        dispatch(
           usersApi.util.updateQueryData('getUsers', undefined, (curr) => [...(curr ?? []), data]),
         );
         try {
           await queryFulfilled;
         } catch {
-          patchResult.undo();
+          // patchResult.undo(); if the new id already exists in db, the api throws 500
         }
       },
     }),

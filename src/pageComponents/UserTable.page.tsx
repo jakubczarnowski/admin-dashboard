@@ -4,6 +4,13 @@ import { useDeleteUserMutation, useGetUsersQuery } from '../store/users/users.ap
 import {
   Button,
   Flex,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
   Table,
   TableContainer,
   Tbody,
@@ -12,6 +19,7 @@ import {
   Th,
   Thead,
   Tr,
+  useDisclosure,
 } from '@chakra-ui/react';
 import { User } from '../store/users/user.types';
 import { useNavigate } from 'react-router-dom';
@@ -19,8 +27,6 @@ import { useNavigate } from 'react-router-dom';
 export function UserTable() {
   const { data } = useGetUsersQuery();
   const navigate = useNavigate();
-  const [deleteUser] = useDeleteUserMutation();
-
   const columns: Column<User>[] = useMemo(
     () => [
       {
@@ -55,15 +61,13 @@ export function UserTable() {
 
       {
         Header: 'Delete',
-        accessor: (row) => row.id,
-        Cell: ({ value }: { value: number }) => (
-          <Button onClick={() => deleteUser(value)} variant="solid" colorScheme="red">
-            Delete
-          </Button>
+        accessor: (row) => ({ id: row.id, name: row.name }),
+        Cell: ({ value }: { value: { id: number; name: string } }) => (
+          <DeleteUserButton id={value.id} name={value.name} />
         ),
       },
     ],
-    [navigate, deleteUser],
+    [navigate],
   );
   const users = useMemo(() => data || [], [data]);
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable({
@@ -72,47 +76,93 @@ export function UserTable() {
   });
 
   return (
-    <Flex shadow="base" p={2} direction="column" w="full" alignItems="center">
-      <Flex direction="row" w="full" justifyContent="space-between" mb={5}>
-        <Text fontSize="2xl" fontWeight="bold">
-          User List
-        </Text>
-        <Button onClick={() => navigate('/add')} variant="solid" colorScheme="blue">
-          Add User
-        </Button>
-      </Flex>
-      <TableContainer w="full" shadow="lg" borderRadius="xl">
-        <Table {...getTableProps()} variant="striped" size="sm">
-          <Thead>
-            {headerGroups.map((headerGroup) => (
-              <Tr {...headerGroup.getHeaderGroupProps()} key={headerGroup.id}>
-                {headerGroup.headers.map((column) => (
-                  <Th {...column.getHeaderProps()} key={column.id}>
-                    {column.render('Header')}
-                  </Th>
-                ))}
-              </Tr>
-            ))}
-          </Thead>
-          <Tbody {...getTableBodyProps()}>
-            {rows.map((row) => {
-              prepareRow(row);
-              return (
-                <Tr {...row.getRowProps()} key={row.id}>
-                  {row.cells.map((cell) => {
-                    const { key, ...restCellProps } = cell.getCellProps();
-                    return (
-                      <Td {...restCellProps} key={key}>
-                        {cell.render('Cell')}
-                      </Td>
-                    );
-                  })}
+    <>
+      <Flex shadow="base" p={2} direction="column" w="full" alignItems="center">
+        <Flex direction="row" w="full" justifyContent="space-between" mb={5}>
+          <Text fontSize="2xl" fontWeight="bold">
+            User List
+          </Text>
+          <Button onClick={() => navigate('/add')} variant="solid" colorScheme="blue">
+            Add User
+          </Button>
+        </Flex>
+        <TableContainer w="full" shadow="lg" borderRadius="xl">
+          <Table {...getTableProps()} variant="striped" size="sm">
+            <Thead>
+              {headerGroups.map((headerGroup) => (
+                <Tr {...headerGroup.getHeaderGroupProps()} key={headerGroup.id}>
+                  {headerGroup.headers.map((column) => (
+                    <Th {...column.getHeaderProps()} key={column.id}>
+                      {column.render('Header')}
+                    </Th>
+                  ))}
                 </Tr>
-              );
-            })}
-          </Tbody>
-        </Table>
-      </TableContainer>
-    </Flex>
+              ))}
+            </Thead>
+            <Tbody {...getTableBodyProps()}>
+              {rows.length === 0 && (
+                <Tr>
+                  <Td colSpan={columns.length} p={2}>
+                    <Text fontWeight="semibold" fontSize="xl" textAlign="center">
+                      No data
+                    </Text>
+                  </Td>
+                </Tr>
+              )}
+              {rows.map((row) => {
+                prepareRow(row);
+                return (
+                  <Tr {...row.getRowProps()} key={row.id}>
+                    {row.cells.map((cell) => {
+                      const { key, ...restCellProps } = cell.getCellProps();
+                      return (
+                        <Td {...restCellProps} key={key}>
+                          {cell.render('Cell')}
+                        </Td>
+                      );
+                    })}
+                  </Tr>
+                );
+              })}
+            </Tbody>
+          </Table>
+        </TableContainer>
+      </Flex>
+    </>
   );
 }
+
+const DeleteUserButton = ({ id, name }: { id: number; name: string }) => {
+  const { isOpen, onToggle, onClose } = useDisclosure();
+  const [deleteUser] = useDeleteUserMutation();
+  const handleDelete = () => {
+    deleteUser(id);
+    onClose();
+  };
+  return (
+    <>
+      <Button onClick={() => onToggle()} variant="solid" colorScheme="red">
+        Delete
+      </Button>
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Delete User</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Text>Are you sure you want to delete {name}?</Text>
+          </ModalBody>
+
+          <ModalFooter>
+            <Button colorScheme="blue" mr={3} variant="outline" onClick={onClose}>
+              Close
+            </Button>
+            <Button variant="solid" colorScheme="red" onClick={handleDelete}>
+              Delete
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    </>
+  );
+};
