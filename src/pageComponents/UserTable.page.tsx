@@ -11,6 +11,7 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Spinner,
   Table,
   TableContainer,
   Tbody,
@@ -26,7 +27,7 @@ import { User } from '../store/users/user.types';
 import { useNavigate } from 'react-router-dom';
 
 export function UserTable() {
-  const { data } = useGetUsersQuery();
+  const { data, isLoading } = useGetUsersQuery();
   const navigate = useNavigate();
   const columns: Column<User>[] = useMemo(
     () => [
@@ -100,7 +101,14 @@ export function UserTable() {
             ))}
           </Thead>
           <Tbody {...getTableBodyProps()}>
-            {rows.length === 0 && (
+            {isLoading && (
+              <Tr>
+                <Td textAlign="center" colSpan={columns.length} p={2}>
+                  <Spinner />
+                </Td>
+              </Tr>
+            )}
+            {rows.length === 0 && !isLoading && (
               <Tr>
                 <Td colSpan={columns.length} p={2}>
                   <Text fontWeight="semibold" fontSize="xl" textAlign="center">
